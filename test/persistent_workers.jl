@@ -2,7 +2,7 @@ include("testhelpers/PersistentWorkers.jl")
 using .PersistentWorkers
 using Test
 using Random
-using Distributed
+using DistributedNext
 
 @testset "PersistentWorkers.jl" begin
     cookie = randstring(16)

@@ -1,18 +1,18 @@
 module PersistentWorkers
 
-using Distributed: Distributed, ClusterManager, WorkerConfig, worker_from_id, set_worker_state, W_TERMINATED
+using DistributedNext: DistributedNext, ClusterManager, WorkerConfig, worker_from_id, set_worker_state, W_TERMINATED
 using Sockets: InetAddr, localhost
 
 export PersistentWorkerManager, start_worker_loop
 
-struct PersistentWorkerManager{IP} <: Distributed.ClusterManager
+struct PersistentWorkerManager{IP} <: ClusterManager
     addr::InetAddr{IP}
 end
 
 PersistentWorkerManager(host, port::Integer) = PersistentWorkerManager(InetAddr(host, port))
 PersistentWorkerManager(port::Integer) = PersistentWorkerManager(localhost, port)
 
-function Distributed.launch(cm::PersistentWorkerManager, ::Dict, launched::Array, launch_ntfy::Base.GenericCondition{Base.AlwaysLockedST})
+function DistributedNext.launch(cm::PersistentWorkerManager, ::Dict, launched::Array, launch_ntfy::Base.GenericCondition{Base.AlwaysLockedST})
     (; host, port) = cm.addr
     wc = WorkerConfig()
     wc.io = nothing
@@ -24,7 +24,7 @@ function Distributed.launch(cm::PersistentWorkerManager, ::Dict, launched::Array
     return nothing
 end
 
-function Distributed.manage(::PersistentWorkerManager, ::Int, ::WorkerConfig, ::Symbol) end
+function DistributedNext.manage(::PersistentWorkerManager, ::Int, ::WorkerConfig, ::Symbol) end
 
 # don't actually kill the worker, just close the streams
 function Base.kill(::PersistentWorkerManager, pid::Int, ::WorkerConfig)
@@ -35,7 +35,7 @@ function Base.kill(::PersistentWorkerManager, pid::Int, ::WorkerConfig)
     return nothing
 end
 
-using Distributed: LPROC, init_worker, process_messages, cluster_cookie
+using DistributedNext: LPROC, init_worker, process_messages, cluster_cookie
 using Sockets: IPAddr, listen, listenany, accept
 
 function start_worker_loop(host::IPAddr, port::Union{Nothing, Integer}; cluster_cookie=cluster_cookie())
