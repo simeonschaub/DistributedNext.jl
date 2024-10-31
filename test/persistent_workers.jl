@@ -38,5 +38,6 @@ using DistributedNext
     @everywhere 1+1
     finally
         kill(worker)
+        wait(worker)
     end
 end
