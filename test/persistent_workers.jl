@@ -7,10 +7,9 @@ using DistributedNext
 @testset "PersistentWorkers.jl" begin
     cookie = randstring(16)
     port = rand(9128:9999) # TODO: make sure port is available?
-    worker = run(
-        `$(Base.julia_exename()) --startup=no --project=$(dirname(@__DIR__)) -L testhelpers/PersistentWorkers.jl
-        -e "using .PersistentWorkers; wait(start_worker_loop($port; cluster_cookie=$(repr(cookie)))[1])"`;
-        wait=false)
+    helpers_path = joinpath(@__DIR__, "testhelpers", "PersistentWorkers.jl")
+    cmd = `$(Base.julia_exename()) --startup=no --project=$(Base.active_project()) -L $(helpers_path) -e "using .PersistentWorkers; wait(start_worker_loop($port; cluster_cookie=$(repr(cookie)))[1])"`
+    worker = run(pipeline(cmd; stdout, stderr); wait=false)
     try
     cluster_cookie(cookie)
     sleep(1)
