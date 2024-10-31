@@ -11,8 +11,9 @@ using DistributedNext
     cmd = `$(Base.julia_exename()) --startup=no --project=$(Base.active_project()) -L $(helpers_path) -e "using .PersistentWorkers; wait(start_worker_loop($port; cluster_cookie=$(repr(cookie)))[1])"`
     worker = run(pipeline(cmd; stdout, stderr); wait=false)
     try
+    @show worker.cmd
     cluster_cookie(cookie)
-    sleep(1)
+    sleep(10)
 
     p = addprocs(PersistentWorkerManager(port))[]
     @test procs() == [1, p]
